@@ -17,7 +17,6 @@ var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
 var dbPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
 
 var connectionString = $"Host=localhost;Database={dbName};Username={dbUser};Password={dbPass}";
-Console.WriteLine(connectionString);
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 

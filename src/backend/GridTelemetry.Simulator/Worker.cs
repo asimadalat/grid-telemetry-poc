@@ -32,14 +32,12 @@ public class Worker(ILogger<Worker> logger) : BackgroundService
             cancellationToken: stoppingToken
         );
 
-        await channel.QueueDeclareAsync(
-            queue: RabbitMqConfiguration.QueueName,
+        await channel.ExchangeDeclareAsync(
+            exchange: RabbitMqConfiguration.ExchangeName,
+            type: ExchangeType.Fanout,
             durable: true,
-            exclusive: false,
             autoDelete: false,
-            arguments: null,
-            cancellationToken: stoppingToken
-        );
+            cancellationToken: stoppingToken);
 
         while (!stoppingToken.IsCancellationRequested)
         {
@@ -58,8 +56,8 @@ public class Worker(ILogger<Worker> logger) : BackgroundService
 
             var properties = new BasicProperties { DeliveryMode = DeliveryModes.Persistent };
             await channel.BasicPublishAsync(
-                exchange: string.Empty,
-                routingKey: RabbitMqConfiguration.QueueName,
+                exchange: RabbitMqConfiguration.ExchangeName,
+                routingKey: string.Empty,
                 mandatory: false,
                 basicProperties: properties,
                 body: Encoding.UTF8.GetBytes(jsonPayload),

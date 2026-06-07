@@ -1,8 +1,43 @@
+using GridTelemetry.Api;
+using GridTelemetry.Api.Hub;
+using GridTelemetry.Core.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
+
+foreach (var line in File.ReadAllLines("../../../.env"))
+{
+    var pair = line.Split('=', 2);
+    if (pair.Length == 2)
+        Environment.SetEnvironmentVariable(pair[0], pair[1]);
+}
+
+var dbName = Environment.GetEnvironmentVariable("POSTGRES_DB");
+var dbUser = Environment.GetEnvironmentVariable("POSTGRES_USER");
+var dbPass = Environment.GetEnvironmentVariable("POSTGRES_PASSWORD");
+
+var connectionString = $"Host=localhost;Database={dbName};Username={dbUser};Password={dbPass}";
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(connectionString));
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+builder.Services.AddControllers();
+builder.Services.AddSignalR();
+
+builder.Services.AddHostedService<MetricWorker>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
@@ -13,6 +48,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors();
+
+app.MapControllers();
+app.MapHub<MetricHub>("/hub/metric");
 
 var summaries = new[]
 {
@@ -21,7 +60,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),

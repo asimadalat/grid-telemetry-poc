@@ -27,12 +27,23 @@ public class Worker(
         _channel = await _connection.CreateChannelAsync(
             cancellationToken: stoppingToken);
 
+        await _channel.ExchangeDeclareAsync(
+            exchange: RabbitMqConfiguration.ExchangeName,
+            type: ExchangeType.Fanout,
+            durable: true,
+            cancellationToken: stoppingToken);
+
         await _channel.QueueDeclareAsync(
-            queue: RabbitMqConfiguration.QueueName,
+            queue: RabbitMqConfiguration.DbQueueName,
             durable: true,
             exclusive: false,
             autoDelete: false,
-            arguments: null,
+            cancellationToken: stoppingToken);
+
+        await _channel.QueueBindAsync(
+            queue: RabbitMqConfiguration.DbQueueName,
+            exchange: RabbitMqConfiguration.ExchangeName,
+            routingKey: string.Empty,
             cancellationToken: stoppingToken);
 
         await _channel.BasicQosAsync(
@@ -83,9 +94,9 @@ public class Worker(
         };
 
         await _channel.BasicConsumeAsync(
-            queue: RabbitMqConfiguration.QueueName,
+            queue: RabbitMqConfiguration.DbQueueName,
             autoAck: false,
-            consumer: consumer,
+            consumer,
             cancellationToken: stoppingToken);
 
         await Task.Delay(Timeout.Infinite, stoppingToken);
