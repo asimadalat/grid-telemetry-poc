@@ -1,13 +1,13 @@
+using GridTelemetry.Core.Messaging;
 using GridTelemetry.Core.Model;
 using RabbitMQ.Client;
 using System.Text;
 using System.Text.Json;
 
-namespace GridTelemetry.Worker;
+namespace GridTelemetry.Simulator;
 
 public class Worker(ILogger<Worker> logger) : BackgroundService
 {
-    private readonly string _queueName = "substation_sampling_queue";
     private readonly Random _random = new();
     private readonly List<(string Code, double MaxCapacity)> _substations =
     [
@@ -24,12 +24,7 @@ public class Worker(ILogger<Worker> logger) : BackgroundService
     {
         logger.LogInformation("Starting Substation Sampling Simulator...");
 
-        var factory = new ConnectionFactory
-        {
-            HostName = "localhost",
-            UserName = "guest",
-            Password = "guest"
-        };
+        var factory = RabbitMqConfiguration.GetConnectionFactory();
         using var connection = await factory.CreateConnectionAsync(
             cancellationToken: stoppingToken
         );
@@ -38,7 +33,7 @@ public class Worker(ILogger<Worker> logger) : BackgroundService
         );
 
         await channel.QueueDeclareAsync(
-            queue: _queueName,
+            queue: RabbitMqConfiguration.QueueName,
             durable: true,
             exclusive: false,
             autoDelete: false,
@@ -64,7 +59,7 @@ public class Worker(ILogger<Worker> logger) : BackgroundService
             var properties = new BasicProperties { DeliveryMode = DeliveryModes.Persistent };
             await channel.BasicPublishAsync(
                 exchange: string.Empty,
-                routingKey: _queueName,
+                routingKey: RabbitMqConfiguration.QueueName,
                 mandatory: false,
                 basicProperties: properties,
                 body: Encoding.UTF8.GetBytes(jsonPayload),

@@ -1,6 +1,7 @@
 <Solution>
   <Project Path="GridTelemetry.Api/GridTelemetry.Api.csproj" />
   <Project Path="GridTelemetry.Core/GridTelemetry.Core.csproj" />
+  <Project Path="GridTelemetry.Processor/GridTelemetry.Processor.csproj" />
+  <Project Path="GridTelemetry.Simulator/GridTelemetry.Simulator.csproj" />
   <Project Path="GridTelemetry.Tests/GridTelemetry.Tests.csproj" />
-  <Project Path="GridTelemetry.Worker/GridTelemetry.Worker.csproj" />
 </Solution>
