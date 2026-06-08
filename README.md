@@ -107,3 +107,10 @@ To ensure high availability, the production roadmap introduces a shared Redis Ba
    ```
 
 Navigate to http://localhost:3000 to view the control interface.
+
+## Live System Previews
+
+![Normal Operating Conditions](images/normal.png)
+
+![Grid Alert](images/emergency.png)
+
