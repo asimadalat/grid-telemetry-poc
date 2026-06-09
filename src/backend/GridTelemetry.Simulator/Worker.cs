@@ -8,7 +8,7 @@ namespace GridTelemetry.Simulator;
 
 public class Worker(ILogger<Worker> logger) : BackgroundService
 {
-    private readonly bool isStressTestMode = true;
+    private readonly bool isStressTestMode = false;
     private readonly Random _random = new();
     private readonly List<(string Code, double MaxCapacity)> _substations =
     [
@@ -48,12 +48,12 @@ public class Worker(ILogger<Worker> logger) : BackgroundService
             if (isStressTestMode)
             {
                 int randPct = _random.Next(95, 106);
-                genLoad = Math.Round(MaxCapacity * (randPct / 100), 2);
+                genLoad = Math.Round(MaxCapacity * (randPct / 100.0), 2);
             }
             else
             {
                 int randPct = _random.Next(35, 66);
-                genLoad = Math.Round(MaxCapacity * (randPct / 100), 2);
+                genLoad = Math.Round(MaxCapacity * (randPct / 100.0), 2);
             }
 
             var sample = new SubstationMetric
