@@ -21,8 +21,12 @@ graph TD
     Proc[GridTelemetry.Processor<br>DB Ingestion Worker]
     DB[(PostgreSQL Database<br>Database Tier)]
     
-    Api[GridTelemetry.Api<br>Web Tier]
-    HubWorker[MetricWorker<br>SignalR Streaming Worker]
+    subgraph Web Tier
+        direction LR
+        Api[GridTelemetry.Api]
+        HubWorker[MetricWorker<br>SignalR Streaming Worker]
+    end
+
     UI[Client Operator Dashboard]
 
     %% Define Data Flows
@@ -84,13 +88,26 @@ To ensure high availability, the production roadmap introduces a shared Redis Ba
 
 ## Run Locally
 
-1. **Spin up Infrastructure via Docker:**
+1. **Create .env & and add Environment Variables:**
+    In the root directory, create a file called `.env`. Populate this file with the key-value pairs for PostgreSQL database, PostgreSQL username, PostgreSQL password, RabbitMQ username and RabbitMQ password. See an example        below:
+
+   ```
+   POSTGRES_DB=grid_telemetry_db
+   POSTGRES_USER=user
+   POSTGRES_PASSWORD=pass1234!
+
+   RABBITMQ_USER=user
+   RABBITMQ_PASSWORD=pass1234!
+   ```
+    
+2. **Spin up Infrastructure via Docker:**
+ 
    ```bash
    docker-compose up -d
    ```
 
-2. **Launch the Core Components:**
-    Run the following commands in separate terminal split paths from the project root:
+3. **Launch the Core Components:**
+    Run the following commands in separate terminals from the project root:
     
    ```bash
    dotnet run --project src/backend/GridTelemetry.Api
@@ -98,7 +115,7 @@ To ensure high availability, the production roadmap introduces a shared Redis Ba
    dotnet run --project src/backend/GridTelemetry.Simulator
    ```
 
-3. **Boot the Frontend Client:**
+4. **Boot the Frontend Client:**
 
    ```bash
    cd src/frontend
