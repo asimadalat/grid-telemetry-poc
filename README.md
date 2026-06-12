@@ -37,8 +37,8 @@ graph TD
     Q1 -->|3. Consumes Event| Proc
     Proc -->|4. Writes To| DB
     
-    DB -.->|5. Initial Seeding REST endpoint -> /v1/snapshot| Api
-    Api -.->|6. Initial Data| UI
+    DB -.->|5. Reads From| Api
+    Api -.->|6. Initial REST endpoint -> /v1/snapshot| UI
     
     Q2 -->|7. Consumes Event| HubWorker
     HubWorker -->|8. WebSocket Push Update| UI
